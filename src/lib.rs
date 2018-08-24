@@ -39,12 +39,12 @@ impl Tdlib {
     pub fn execute(&self, request: &str) -> String {
         debug!("tdlib execute: {}", request);
         let cstring = CString::new(request).unwrap();
-        unsafe {
+        let result = unsafe {
             let response = td_json_client_execute(self.instance, cstring.as_ptr());
-            let result = CStr::from_ptr(response).to_string_lossy().into_owned();
-            debug!("tdlib execute result: {}", result);
-            result
-        }
+            CStr::from_ptr(response).to_string_lossy().into_owned()
+        };
+        debug!("tdlib execute result: {}", result);
+        result
     }
 
     pub fn receive(&self, timeout: f64) -> Option<String> {
@@ -69,8 +69,8 @@ impl Tdlib {
 
 impl Drop for Tdlib {
     fn drop(&mut self) {
+        debug!("destroying tdlib");
         unsafe {
-            debug!("destroying tdlib");
             td_json_client_destroy(self.instance);
         }
     }
