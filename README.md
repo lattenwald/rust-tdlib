@@ -1,3 +1,7 @@
+### Prerequisites
+
+Have [tdlib](https://github.com/tdlib/td) installed
+
 ### Using and running
 
 Here follows a working example
