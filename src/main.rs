@@ -1,6 +1,6 @@
-extern crate rust_tdlib;
-extern crate json;
 extern crate env_logger;
+extern crate json;
+extern crate rust_tdlib;
 
 use json::object;
 use rust_tdlib::Tdlib;
@@ -20,7 +20,7 @@ fn main() {
     println!("client: {:?}", client);
 
     let cfg = config(app_id, app_hash);
-    let req = json::stringify( cfg );
+    let req = json::stringify(cfg);
 
     client.send(&req[..]);
 
