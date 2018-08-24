@@ -13,15 +13,16 @@ extern {
     fn td_json_client_destroy(client: *mut Tdlib);
 }
 
-pub fn client_create() -> *mut Tdlib {
-    unsafe {
-        td_json_client_create()
+impl Tdlib {
+    pub fn create() -> *mut Self {
+        unsafe { td_json_client_create() }
     }
 }
 
 impl Drop for Tdlib {
     fn drop(&mut self) {
         unsafe {
+            println!("dropping client");
             td_json_client_destroy(self);
         }
     }
