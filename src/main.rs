@@ -1,5 +1,6 @@
 extern crate rust_tdlib;
 extern crate json;
+extern crate env_logger;
 
 use json::object;
 use rust_tdlib::Tdlib;
@@ -7,6 +8,7 @@ use std::env;
 use std::io;
 
 fn main() {
+    env_logger::init();
     println!("Hello, world!");
 
     let args: Vec<String> = env::args().collect();
@@ -23,8 +25,7 @@ fn main() {
     client.send(&req[..]);
 
     loop {
-        let resp = client.receive(2.0);
-        println!("resp: {:?}", resp);
+        let _resp = client.receive(2.0);
     }
 }
 
