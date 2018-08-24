@@ -1,4 +1,9 @@
 [[package]]
+name = "json"
+version = "0.11.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
 name = "libc"
 version = "0.2.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7,8 +12,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "rust-tdlib"
 version = "0.1.0"
 dependencies = [
+ "json 0.11.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.43 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [metadata]
+"checksum json 0.11.13 (registry+https://github.com/rust-lang/crates.io-index)" = "9ad0485404155f45cce53a40d4b2d6ac356418300daed05273d9e26f91c390be"
 "checksum libc 0.2.43 (registry+https://github.com/rust-lang/crates.io-index)" = "76e3a3ef172f1a0b9a9ff0dd1491ae5e6c948b94479a3021819ba7d860c8645d"
