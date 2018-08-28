@@ -44,7 +44,7 @@ impl Tdlib {
                 .as_ref()
                 .map(|response| CStr::from_ptr(response).to_string_lossy().into_owned())
         };
-        debug!("tdlib execute result: {}", result);
+        debug!("tdlib execute result: {:?}", result);
         result
     }
 
