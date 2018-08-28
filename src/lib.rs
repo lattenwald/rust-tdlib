@@ -36,12 +36,13 @@ impl Tdlib {
         unsafe { td_json_client_send(self.instance, cstring.as_ptr()) }
     }
 
-    pub fn execute(&self, request: &str) -> String {
+    pub fn execute(&self, request: &str) -> Option<String> {
         debug!("tdlib execute: {}", request);
         let cstring = CString::new(request).unwrap();
         let result = unsafe {
-            let response = td_json_client_execute(self.instance, cstring.as_ptr());
-            CStr::from_ptr(response).to_string_lossy().into_owned()
+            td_json_client_execute(self.instance, cstring.as_ptr())
+                .as_ref()
+                .map(|response| CStr::from_ptr(response).to_string_lossy().into_owned())
         };
         debug!("tdlib execute result: {}", result);
         result
