@@ -2,10 +2,11 @@ extern crate libc;
 #[macro_use]
 extern crate log;
 
-use libc::{c_double, c_int, c_void, c_long};
+use libc::{c_double, c_int, c_long, c_void};
 use std::ffi::CStr;
 use std::ffi::CString;
 use std::os::raw::c_char;
+use std::ptr;
 
 type TdlibClient = *mut c_void;
 
@@ -43,12 +44,18 @@ impl Tdlib {
         unsafe { td_set_log_max_file_size(size) };
     }
 
-    pub fn set_log_file_path(path: &str) -> bool {
-        let cpath = CString::new(path).unwrap();
-        let result = unsafe { td_set_log_file_path(cpath.as_ptr()) };
+    pub fn set_log_file_path(path: Option<&str>) -> bool {
+        let result = match path {
+            None => unsafe { td_set_log_file_path(ptr::null()) },
+            Some(path_) => {
+                let cpath = CString::new(path_).unwrap();
+                unsafe { td_set_log_file_path(cpath.as_ptr()) }
+            }
+        };
         match result {
             1 => true,
-            _ => false,
+            0 => false,
+            _ => panic!("unexpected response from libtdjson: {:?}", result)
         }
     }
 
