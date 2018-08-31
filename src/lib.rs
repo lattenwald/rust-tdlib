@@ -29,6 +29,22 @@ extern "C" {
 }
 
 impl Tdlib {
+    /// Sets the verbosity level of the internal logging of TDLib.
+    ///
+    /// By default the TDLib uses a log verbosity level of 5.
+    ///
+    /// # Parameters
+    ///
+    /// `level` New value of logging verbosity level. Value 0 corresponds to fatal errors,
+    /// value 1 corresponds to errors, value 2 corresponds to warnings and debug warnings,
+    /// value 3 corresponds to informational, value 4 corresponds to debug, value 5 corresponds
+    /// to verbose debug, value greater than 5 and up to 1024 can be used to enable even more logging.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// Tdlib::set_log_verbosity_level(3);
+    /// ```
     pub fn set_log_verbosity_level<'a>(level: i32) -> Result<(), &'a str> {
         if level < 0 {
             Err("log verbosity level should be >= 0")
@@ -36,14 +52,40 @@ impl Tdlib {
             Err("log verbosity level should be <= 1024")
         } else {
             unsafe { td_set_log_verbosity_level(level) };
-            Ok({})
+            Ok(())
         }
     }
 
+    /// Sets maximum size of the file to where the internal TDLib log is written before the file will be auto-rotated.
+    ///
+    /// Unused if log is not written to a file. Defaults to 10 MB.
+    ///
+    /// # Parameters
+    ///
+    /// `size` Maximum size of the file to where the internal TDLib log is written before the file will be auto-rotated. Should be positive.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// Tdlib::set_log_max_file_size(1024 * 1024);
+    /// ```
     pub fn set_log_max_file_size(size: i64) {
         unsafe { td_set_log_max_file_size(size) };
     }
 
+    /// Sets the path to the file where the internal TDLib log will be written.
+    ///
+    /// By default TDLib writes logs to stderr or an OS specific log. Use this method to write the log to a file instead.
+    ///
+    /// # Parameters
+    ///
+    /// `path` Maybe path to a file where the internal TDLib log will be written. Use `None` to switch back to the default logging behaviour.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// Tdlib::set_log_file_path(Some("/var/log/tdlib/tdlib.log"));
+    /// ```
     pub fn set_log_file_path(path: Option<&str>) -> bool {
         let result = match path {
             None => unsafe { td_set_log_file_path(ptr::null()) },
@@ -59,18 +101,45 @@ impl Tdlib {
         }
     }
 
+    /// Creates a new instance of TDLib.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let tdlib = Tdlib::new();
+    /// ```
     pub fn new() -> Self {
         debug!("creating tdlib");
         let client = unsafe { td_json_client_create() };
         Tdlib { instance: client }
     }
 
+    /// Sends request to the TDLib client.
+    ///
+    /// May be called from any thread.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let request = r#"{"@type": "getMe"}"#;
+    /// tdlib.send(request);
+    /// ```
     pub fn send(&self, request: &str) {
         debug!("tdlib send: {}", request);
         let cstring = CString::new(request).unwrap();
         unsafe { td_json_client_send(self.instance, cstring.as_ptr()) }
     }
 
+    /// Synchronously executes TDLib request.
+    ///
+    /// May be called from any thread. Only a few requests can be executed synchronously.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let request = r#"{"@type": "getTextEntities", "text": "@telegram /test_command https://telegram.org telegram.me"}"#;
+    /// tdlib.execute(request);
+    /// ```
     pub fn execute(&self, request: &str) -> Option<String> {
         debug!("tdlib execute: {}", request);
         let cstring = CString::new(request).unwrap();
@@ -83,6 +152,16 @@ impl Tdlib {
         result
     }
 
+    /// Receives incoming updates and request responses from the TDLib client.
+    ///
+    /// May be called from any thread, but shouldn't be called simultaneously
+    /// from two different threads.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// tdlib.receive(5.0);
+    /// ```
     pub fn receive(&self, timeout: f64) -> Option<String> {
         debug!("tdlib receive with timeout {}s", timeout);
         unsafe {
