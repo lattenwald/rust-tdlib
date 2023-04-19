@@ -23,6 +23,12 @@ extern "C" {
     fn td_json_client_destroy(client: TdlibClient);
 }
 
+impl Default for Tdlib {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Tdlib {
     /// Creates a new instance of TDLib.
     ///
