@@ -2,31 +2,21 @@ extern crate libc;
 #[macro_use]
 extern crate log;
 
-use libc::{c_double, c_void};
 use std::ffi::CStr;
 use std::ffi::CString;
-use std::os::raw::c_char;
-
-type TdlibClient = *mut c_void;
+use std::os::raw::{c_char, c_double, c_int};
 
 #[derive(Debug)]
 pub struct Tdlib {
-    instance: TdlibClient,
+    inner: i32,
 }
 
 #[link(name = "tdjson")]
 extern "C" {
-    fn td_json_client_create() -> TdlibClient;
-    fn td_json_client_send(client: TdlibClient, request: *const c_char);
-    fn td_json_client_receive(client: TdlibClient, timeout: c_double) -> *mut c_char;
-    fn td_json_client_execute(client: TdlibClient, request: *const c_char) -> *mut c_char;
-    fn td_json_client_destroy(client: TdlibClient);
-}
-
-impl Default for Tdlib {
-    fn default() -> Self {
-        Self::new()
-    }
+    fn td_create_client_id() -> c_int;
+    fn td_send(client_id: c_int, request: *const c_char);
+    fn td_execute(request: *const c_char) -> *const c_char;
+    fn td_receive(timeout: c_double) -> *const c_char;
 }
 
 impl Tdlib {
@@ -39,8 +29,8 @@ impl Tdlib {
     /// ```
     pub fn new() -> Self {
         debug!("creating tdlib");
-        let client = unsafe { td_json_client_create() };
-        Tdlib { instance: client }
+        let client = unsafe { td_create_client_id() };
+        Tdlib { inner: client }
     }
 
     /// Sends request to the TDLib client.
@@ -56,7 +46,7 @@ impl Tdlib {
     pub fn send(&self, request: &str) {
         debug!("tdlib send: {}", request);
         let cstring = CString::new(request).unwrap();
-        unsafe { td_json_client_send(self.instance, cstring.as_ptr()) }
+        unsafe { td_send(self.inner, cstring.as_ptr()) }
     }
 
     /// Synchronously executes TDLib request.
@@ -73,7 +63,7 @@ impl Tdlib {
         debug!("tdlib execute: {}", request);
         let cstring = CString::new(request).unwrap();
         let result = unsafe {
-            td_json_client_execute(self.instance, cstring.as_ptr())
+            td_execute(cstring.as_ptr())
                 .as_ref()
                 .map(|response| CStr::from_ptr(response).to_string_lossy().into_owned())
         };
@@ -94,7 +84,7 @@ impl Tdlib {
     pub fn receive(&self, timeout: f64) -> Option<String> {
         debug!("tdlib receive with timeout {}s", timeout);
         unsafe {
-            match td_json_client_receive(self.instance, timeout)
+            match td_receive(timeout)
                 .as_ref()
                 .map(|response| CStr::from_ptr(response).to_string_lossy().into_owned())
             {
@@ -111,11 +101,8 @@ impl Tdlib {
     }
 }
 
-impl Drop for Tdlib {
-    fn drop(&mut self) {
-        debug!("destroying tdlib");
-        unsafe {
-            td_json_client_destroy(self.instance);
-        }
+impl Default for Tdlib {
+    fn default() -> Self {
+        Self::new()
     }
 }

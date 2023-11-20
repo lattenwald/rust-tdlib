@@ -6,3 +6,6 @@ authors = ["Alexander Q <qalexx@gmail.com>"]
 [dependencies]
 libc = "0.2.148"
 log = "0.4.20"
+
+[dev-dependencies]
+serde_json = "1.0.108"
