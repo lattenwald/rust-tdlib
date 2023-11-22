@@ -6,7 +6,7 @@ use std::ffi::CStr;
 use std::ffi::CString;
 use std::os::raw::{c_char, c_double, c_int};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Tdlib {
     inner: i32,
 }
@@ -57,9 +57,9 @@ impl Tdlib {
     ///
     /// ```
     /// let request = r#"{"@type": "getTextEntities", "text": "@telegram /test_command https://telegram.org telegram.me"}"#;
-    /// tdlib.execute(request);
+    /// tdlib::execute(request);
     /// ```
-    pub fn execute(&self, request: &str) -> Option<String> {
+    pub fn execute(request: &str) -> Option<String> {
         debug!("tdlib execute: {}", request);
         let cstring = CString::new(request).unwrap();
         let result = unsafe {
