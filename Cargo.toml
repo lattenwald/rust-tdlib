@@ -3,6 +3,7 @@ name = "rust-tdlib"
 version = "0.1.0"
 edition = "2021"
 authors = ["Alexander Q <qalexx@gmail.com>"]
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 libc = "0.2.148"

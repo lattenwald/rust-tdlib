@@ -9,3 +9,7 @@ See `examples`
 Get your `app_id` and `app_hash` at https://my.telegram.org/apps and run
 
     $ API_ID=... API_HASH=... cargo run --example get_me
+
+### License
+
+Licensed under either of [Apache License, Version 2.0](LICENSE-APACHE) or [MIT license](LICENSE-MIT) at your option.
